@@ -1,0 +1,23 @@
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv(r"C:\Users\Jawad.A\Downloads\day11_income.csv")
+
+def win_s(s, l_q, u_q):
+    l, u = s.quantile([l_q, u_q])
+    return s.clip(l, u)
+
+def rem_t(s, u_q):
+    u = s.quantile(u_q)
+    return s[s <= u]
+
+v = df['income']
+v_win = win_s(v, 0.05, 0.95)
+v_rem = rem_t(v, 0.95)
+
+print("Original Stats:")
+print(v.describe())
+print("\nWinsorized:")
+print(v_win.describe())
+print("\nRemoved:")
+print(v_rem.describe())
