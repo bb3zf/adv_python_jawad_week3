@@ -1,0 +1,9 @@
+import pandas as pd
+
+df = pd.read_csv(r"C:\Users\Jawad.A\Downloads\day12_users (1).csv",sep=';')
+
+m = {'ny': 'New York', 'sf': 'San Francisco', 'la': 'Los Angeles'}
+df['city'] = (df['city'].str.strip().str.lower().str.replace(r'[^\w\s]', '', regex=True).replace(m))
+df['signup_time'] = pd.to_datetime(df['signup_time'],utc=True,errors='coerce')
+
+print(df[['city', 'signup_time']])
