@@ -1,0 +1,20 @@
+import pandas as pd
+import time
+
+def clean_ch(df):
+    for c in df.select_dtypes(include=['object']).columns:
+        df[c] = pd.to_numeric(df[c].astype(str).str.replace(r'[$,?]', '', regex=True), errors='coerce')
+    return df
+
+def proc_file(p_in, p_out, size=1000):
+    t0 = time.time()
+    head = True
+    for chunk in pd.read_csv(p_in, chunksize=size):
+        df_c = clean_ch(chunk)
+        df_c.to_csv(p_out, mode='a', index=False, header=head)
+        head = False
+    print(f"Time: {time.time() - t0:.2f}s")
+
+p_in = r"C:\Users\acer61\Downloads\day13_large_users.csv"
+p_out = "cleaned_output.csv"
+proc_file(p_in, p_out)
