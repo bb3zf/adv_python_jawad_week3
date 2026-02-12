@@ -1,0 +1,43 @@
+import numpy as np
+import pandas as pd
+
+#read file with pandas and make a data frame
+r= pd.read_csv(r"C:\Users\Jawad.A\Downloads\day15_real_dataset_large.csv")
+df= pd.DataFrame(r)
+
+#clean spechial characters and date
+df['income'] = df['income'].replace(r'[$,]', '', regex=True)
+df['signup_time'] = pd.to_datetime(df["signup_time"], errors='coerce')
+
+
+#make the age and income cols numeric
+df["age"]= pd.to_numeric(df["age"], errors="coerce")
+df["income"]= pd.to_numeric(df["income"], errors="coerce")
+
+#delete unlogic values like(age: -5, 0)
+df.loc[df["age"] <= 0, "age"] = np.nan
+
+
+#detect missing values
+missings= ["N/A", "NA", "Nan", "NaT", "not reported","not a date", "unknown", "?"]
+df= df.replace(missings, np.nan)
+
+
+#drop missings in the important cols
+important_cols = ["income", "age"]
+df= df.dropna(subset=important_cols)
+
+
+# IQR method to detect outliers
+q1, q3 = df["income"].quantile([0.25, 0.75])
+iqr = q3 - q1
+low, high = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+iqr_out = df[(df["income"] < low) | (df["income"] > high)]
+
+#to make data frame start like (1,2,3,...) not like (1,4,10....)
+df = df.reset_index(drop=True)
+
+#saving and print important results
+df.to_csv("day15_cleaned.csv", index=False)
+print(df.head(15))
+print(f"\nIQR Outliers: {len(iqr_out)}")
